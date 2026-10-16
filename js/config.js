@@ -10,7 +10,7 @@
  * pin 30.8855232, 75.8156191.
  */
 export const CONFIG = {
-  siteUrl: "https://trikha-pg.netlify.app", // update when the real domain is live
+  siteUrl: "https://trikha-pg.vercel.app", // update when the real domain is live
 
   demo: {
     // Preview mode: banner on, placeholder notes visible, noindex (see README → Going live).
@@ -71,7 +71,7 @@ export const CONFIG = {
     // "netlify" → Netlify Forms (works only when deployed on Netlify)
     // "api"     → POST /api/enquiry (Vercel serverless function in /api; needs env vars)
     // "endpoint"→ POST JSON to `endpoint` (e.g. a Formspree form URL — public, not a secret)
-    provider: "netlify",
+    provider: "api", // Vercel: needs env vars, see README → Enquiry form
     endpoint: "",
   },
 
