@@ -24,10 +24,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&display=swap">
-  <link rel="preload" as="image" href="assets/images/scenes/01-exterior.svg" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/images/property/01-exterior-gate.jpg" fetchpriority="high">
   <link rel="stylesheet" href="css/styles.css">
 
-  <!-- Structured data: only fields confirmed from the Google listing. Add telephone/address/rating once verified. -->
+  <!-- Structured data: name/location from the Google listing, phone from the property photos. Add address/rating once verified. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -37,7 +37,9 @@
     "url": "https://trikha-pg.netlify.app/",
     "address": { "@type": "PostalAddress", "addressLocality": "BRS Nagar, Ludhiana", "addressRegion": "Punjab", "addressCountry": "IN" },
     "geo": { "@type": "GeoCoordinates", "latitude": 30.8855232, "longitude": 75.8156191 },
-    "hasMap": "https://maps.google.com/?cid=16447635875937687761"
+    "hasMap": "https://maps.google.com/?cid=16447635875937687761",
+    "telephone": "+91-98557-57737",
+    "image": "https://trikha-pg.netlify.app/assets/images/property/01-exterior-gate.jpg"
   }
   </script>
 </head>
@@ -85,7 +87,7 @@
       <div class="wt-stage">
         <div class="wt-media" data-media>
           <noscript>
-            <img class="wt-still" src="assets/images/scenes/01-exterior.svg" alt="" width="1600" height="900">
+            <img class="wt-still wt-still--static" src="assets/images/property/01-exterior-gate.jpg" alt="Front gate of TRIKHA PG">
           </noscript>
         </div>
         <div class="wt-scrim" aria-hidden="true"></div>
@@ -119,13 +121,16 @@
         <div class="wt-caption" aria-hidden="true">
           <h2 class="wt-caption-title">The approach</h2>
           <p class="wt-caption-text">Arrive at TRIKHA PG in BRS Nagar, Ludhiana.</p>
-          <span class="tag tag--pending wt-caption-tag" hidden>To be confirmed</span>
+          <div class="wt-caption-meta">
+            <span class="wt-caption-count" hidden></span>
+            <span class="tag tag--pending wt-caption-tag" hidden>To be confirmed</span>
+          </div>
         </div>
 
         <!-- Final call to action inside the walkthrough -->
         <div class="wt-final" inert>
           <div class="wt-final-card">
-            <p class="eyebrow">Chapter 08 · Enquire</p>
+            <p class="eyebrow">Final step · Enquire</p>
             <h2>Ready to make it yours?</h2>
             <p>Ask about current availability, rent and a visit to see the rooms in person.</p>
             <div class="wt-final-actions">
@@ -239,7 +244,7 @@
           <ul class="contact-list">
             <li>
               <span class="contact-k">Phone</span>
-              <a class="contact-v" href="#" data-call-link data-call-text>Number to be confirmed</a>
+              <a class="contact-v" href="tel:+919855757737" data-call-link data-call-text>+91 98557 57737</a>
             </li>
             <li>
               <span class="contact-k">WhatsApp</span>

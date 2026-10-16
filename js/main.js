@@ -193,8 +193,8 @@ async function loadRooms() {
     return `
       <article class="room-card reveal">
         <div class="room-media">
-          ${img ? `<img src="${esc(img)}" alt="${esc(name)}${r.placeholder ? " — placeholder image" : ""}" loading="lazy" width="1200" height="900">` : ""}
-          ${r.placeholder ? `<span class="tag tag--overlay">Placeholder photo</span>` : ""}
+          ${img ? `<img src="${esc(img)}" alt="${esc(r.photoLabel || name)} — photo from TRIKHA PG" loading="lazy">` : ""}
+          ${r.placeholder ? `<span class="tag tag--overlay">Placeholder photo</span>` : r.photoLabel ? `<span class="tag tag--overlay">${esc(r.photoLabel)}</span>` : ""}
         </div>
         <div class="room-body">
           <h3>${esc(name)} ${r.name.verified ? "" : pending("Placeholder")}</h3>
@@ -212,16 +212,18 @@ async function loadRooms() {
 
   const items = data.facilities.items;
   const list = $("[data-facilities]");
-  const shown = items.filter((f) => f.confirmed || demo);
-  if (!items.some((f) => f.confirmed)) $("[data-fac-empty]").hidden = false;
+  const shown = items.filter((f) => f.confirmed || f.seen || demo);
+  if (!items.some((f) => f.confirmed || f.seen)) $("[data-fac-empty]").hidden = false;
   list.innerHTML = shown.map((f) => `
-    <li class="fac-item${f.confirmed ? "" : " is-pending"}">
+    <li class="fac-item${f.confirmed ? "" : f.seen ? " is-seen" : " is-pending"}">
       <span class="fac-dot" aria-hidden="true"></span>
       <span>${esc(f.label)}</span>
-      ${f.confirmed ? "" : pending("To confirm")}
+      ${f.confirmed ? "" : f.seen ? '<span class="tag tag--seen">Seen in photos</span>' : pending("To confirm")}
     </li>`).join("");
-  if (demo && shown.some((f) => !f.confirmed)) {
-    $("[data-fac-lead]").textContent = "Preview: these are the facilities to confirm with the owner. Only confirmed items will appear on the live site.";
+  if (shown.some((f) => f.seen && !f.confirmed)) {
+    $("[data-fac-lead]").textContent = demo
+      ? "“Seen in photos” items appear in the property photos; ask whether they apply to your room. Items marked “To confirm” are a checklist for the owner and won't show on the live site until confirmed."
+      : "“Seen in photos” items appear in the property photos. Ask us whether they apply to the room you're interested in.";
   }
   observeReveals();
 }

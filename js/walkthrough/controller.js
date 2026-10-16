@@ -5,17 +5,16 @@
 // Scroll progress (from GSAP ScrollTrigger when loaded, otherwise measured
 // directly) is smoothed and fed to the active renderer:
 //
-//   stills        → instant, lightweight; also the loading state and the fallback
-//   video         → real walkthrough footage, scroll scrubs currentTime
-//   frames        → real footage exported as an image sequence (smoothest on iOS)
-//   placeholder3d → procedural Three.js block-out (until real footage exists)
+//   photos → real property photos with forward push-in transitions (default,
+//            instant, no WebGL — also the fallback)
+//   video  → real walkthrough footage, scroll scrubs currentTime
+//   frames → real footage exported as an image sequence (smoothest on iOS)
 
-import { clamp, smoothstep, sceneIndexAt, localProgress, cutOpacity, captionOpacity, scrollOffsetForScene } from "../lib/progress.js";
-import { createStillsRenderer } from "./stills.js";
+import { clamp, smoothstep, sceneIndexAt, localProgress, cutOpacity, captionOpacity, scrollOffsetForScene, shotAt } from "../lib/progress.js";
+import { createPhotoRenderer } from "./photos.js";
 
 const MODE_BADGES = {
-  stills: "Placeholder images · real photos coming soon",
-  placeholder3d: "Illustrative 3D block-out · not the actual TRIKHA PG layout",
+  photos: "Photo walkthrough · real photos of the property",
   video: "",
   frames: "",
 };
@@ -32,6 +31,7 @@ export function initWalkthrough({ section, config, scenes, reducedMotion }) {
     captionTitle: section.querySelector(".wt-caption-title"),
     captionText: section.querySelector(".wt-caption-text"),
     captionTag: section.querySelector(".wt-caption-tag"),
+    captionCount: section.querySelector(".wt-caption-count"),
     cut: section.querySelector(".wt-cut"),
     final: section.querySelector(".wt-final"),
     badge: section.querySelector(".wt-badge"),
@@ -49,10 +49,10 @@ export function initWalkthrough({ section, config, scenes, reducedMotion }) {
   const isMobile = matchMedia("(max-width: 760px), (pointer: coarse)").matches;
 
   // ---- Renderers -----------------------------------------------------------
-  const stills = createStillsRenderer(media, scenes);
-  let active = stills;
-  let mode = "stills";
-  setBadge("stills");
+  const photos = createPhotoRenderer(media, scenes);
+  let active = photos;
+  let mode = "photos";
+  setBadge("photos");
 
   // ---- Rail (chapter navigation) ------------------------------------------
   const railButtons = scenes.map((s, i) => {
@@ -84,6 +84,7 @@ export function initWalkthrough({ section, config, scenes, reducedMotion }) {
   let raf = 0;
   let last = performance.now();
   let lastIndex = -1;
+  let lastShotKey = "";
   let pointer = { x: 0, y: 0 };
   let pointerTarget = { x: 0, y: 0 };
   const measure = () => {
@@ -142,14 +143,15 @@ export function initWalkthrough({ section, config, scenes, reducedMotion }) {
 
   function render(p) {
     active.setProgress(p, pointer);
-    if (active !== stills && stills.visible) stills.setProgress(p, pointer);
+    if (active !== photos && photos.visible) photos.setProgress(p, pointer);
     updateUI(p);
   }
 
   function updateUI(p) {
-    const i = sceneIndexAt(p, scenes);
+    const { index: i, shot: k, count, u } = shotAt(p, scenes);
     const s = scenes[i];
     const t = localProgress(p, s);
+    const shot = s.shots?.[k];
 
     // Hero copy fades as the journey begins.
     const heroO = 1 - smoothstep(p / 0.045);
@@ -157,20 +159,31 @@ export function initWalkthrough({ section, config, scenes, reducedMotion }) {
     ui.hero.style.transform = `translate3d(0, ${(-40 * (1 - heroO)).toFixed(1)}px, 0)`;
     ui.hero.style.visibility = heroO < 0.01 ? "hidden" : "visible";
     ui.hero.toggleAttribute("inert", heroO < 0.5);
+    stage.style.setProperty("--hero", heroO.toFixed(3));
 
     if (i !== lastIndex) {
       lastIndex = i;
       ui.chapterNum.textContent = s.chapter;
       ui.chapterLabel.textContent = s.label;
       ui.captionTitle.textContent = s.title;
-      ui.captionText.textContent = s.caption;
       ui.captionTag.hidden = s.confirmed !== false;
+      ui.captionTag.textContent = s.confirmed === false ? (s.caption || "To be confirmed") : "";
       railButtons.forEach((b, j) => b.toggleAttribute("aria-current", j === i));
-      ui.live.textContent = `Chapter ${s.chapter}: ${s.title}`;
+    }
+    const shotKey = `${i}:${k}`;
+    if (shotKey !== lastShotKey) {
+      lastShotKey = shotKey;
+      ui.captionText.textContent = shot?.caption || s.caption || "";
+      ui.captionCount.textContent = count > 1 ? `${k + 1} / ${count}` : "";
+      ui.captionCount.hidden = count < 2;
+      ui.live.textContent = `Chapter ${s.chapter}: ${s.title}. ${shot?.caption || ""}`;
     }
 
     const showCopy = p > 0.035;
-    const capO = s.id === "enquire" ? 1 - smoothstep((t - 0.05) / 0.2) : captionOpacity(t, i === 0 ? [0.3, 0.5] : [0.1, 0.26]);
+    // Caption follows each photo: in after it settles, out as the next one arrives.
+    const capO = s.id === "enquire" ? 0
+      : i === 0 ? captionOpacity(u, [0.3, 0.5], [0.72, 0.84])
+      : captionOpacity(u, [0.06, 0.2], [0.7, 0.8]);
     ui.caption.style.opacity = (showCopy ? capO : 0).toFixed(3);
     ui.caption.style.transform = `translate3d(0, ${(12 * (1 - capO)).toFixed(1)}px, 0)`;
     ui.chapter.style.opacity = showCopy ? "1" : "0";
@@ -196,7 +209,7 @@ export function initWalkthrough({ section, config, scenes, reducedMotion }) {
   // ---- Upgrade to a richer renderer once the page is usable ------------------
   const wt = config.walkthrough;
   const wantMode = wt.mode === "auto"
-    ? wt.video.available ? "video" : wt.frames.available ? "frames" : wt.placeholder3d ? "placeholder3d" : "stills"
+    ? wt.video.available ? "video" : wt.frames.available ? "frames" : "photos"
     : wt.mode;
 
   async function upgrade() {
@@ -208,10 +221,6 @@ export function initWalkthrough({ section, config, scenes, reducedMotion }) {
       } else if (wantMode === "frames") {
         const { createFrameRenderer } = await import("./frames.js");
         r = await createFrameRenderer(media, { ...wt.frames, path: isMobile && wt.frames.mobilePath ? wt.frames.mobilePath : wt.frames.path, onFrame: kick });
-      } else if (wantMode === "placeholder3d") {
-        if (!hasWebGL()) throw new Error("WebGL unavailable");
-        const { createPlaceholder3D } = await import("./placeholder3d.js");
-        r = await createPlaceholder3D(media, { scenes, mobile: isMobile, onLost: () => fallBack() });
       }
       if (!r) return;
       active = r;
@@ -219,58 +228,57 @@ export function initWalkthrough({ section, config, scenes, reducedMotion }) {
       section.dataset.mode = mode;
       setBadge(mode);
       r.setProgress(current, pointer);
-      stills.fadeOut(() => kick());
+      photos.fadeOut(() => kick());
       kick();
     } catch (err) {
-      console.warn("[walkthrough] staying on still images:", err);
+      console.warn("[walkthrough] staying on the photo walkthrough:", err);
       fallBack();
     }
   }
 
   function fallBack() {
-    if (active !== stills) { try { active.destroy?.(); } catch {} }
-    active = stills;
-    mode = "stills";
+    if (active !== photos) { try { active.destroy?.(); } catch {} }
+    active = photos;
+    mode = "photos";
     section.dataset.mode = mode;
-    stills.fadeIn();
-    setBadge("stills");
+    photos.fadeIn();
+    setBadge("photos");
     kick();
   }
 
   section.dataset.mode = mode;
-  // Start the heavier renderer after first paint/idle so the hero is never blocked.
-  const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 300));
-  if (document.readyState === "complete") idle(upgrade, { timeout: 1500 });
-  else addEventListener("load", () => idle(upgrade, { timeout: 1500 }), { once: true });
+  // Real footage (if configured) loads after first paint/idle so the hero is never blocked.
+  if (wantMode !== "photos") {
+    const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 300));
+    if (document.readyState === "complete") idle(upgrade, { timeout: 1500 });
+    else addEventListener("load", () => idle(upgrade, { timeout: 1500 }), { once: true });
+  }
 
   render(0);
   kick();
   return { get mode() { return mode; }, goToScene };
 }
 
-function hasWebGL() {
-  try {
-    const c = document.createElement("canvas");
-    return Boolean(window.WebGLRenderingContext && (c.getContext("webgl2") || c.getContext("webgl")));
-  } catch { return false; }
-}
-
 /** Reduced-motion version: no pinning, no scrubbing — a calm sequence of chapters. */
 function renderStatic(section, scenes) {
   section.classList.add("wt--static");
   section.querySelector(".wt-media").insertAdjacentHTML("beforeend",
-    `<img class="wt-still" style="opacity:1" src="${scenes[0].still}" alt="" width="1600" height="900" fetchpriority="high">`);
+    `<img class="wt-still wt-still--static" src="${scenes[0].still}" alt="" fetchpriority="high">`);
+  const esc = (v) => String(v ?? "").replace(/"/g, "&quot;");
   const list = section.querySelector(".wt-static-list");
-  list.innerHTML = scenes.map((s) => `
+  list.innerHTML = scenes.filter((s) => s.id !== "enquire").map((s) => `
     <li class="wt-static-item">
-      <figure>
-        <img src="${s.still}" alt="${s.title} — placeholder image" loading="lazy" width="1600" height="900">
-        <figcaption>
-          <span class="eyebrow">${s.chapter} · ${s.label}</span>
-          <h3>${s.title}</h3>
-          <p>${s.caption}</p>
-          ${s.confirmed === false ? '<span class="tag tag--pending">To be confirmed</span>' : ""}
-        </figcaption>
-      </figure>
+      <div class="wt-static-head">
+        <span class="eyebrow">${s.chapter} · ${s.label}</span>
+        <h3>${s.title}</h3>
+        ${s.confirmed === false ? `<span class="tag tag--pending">${s.caption || "To be confirmed"}</span>` : ""}
+      </div>
+      <div class="wt-static-shots">
+        ${(s.shots || []).map((sh) => `
+          <figure class="${sh.portrait ? "is-portrait" : ""}">
+            <img src="${sh.src}" alt="${esc(sh.alt)}" loading="lazy">
+            ${sh.caption ? `<figcaption>${sh.caption}</figcaption>` : ""}
+          </figure>`).join("")}
+      </div>
     </li>`).join("");
 }

@@ -72,3 +72,17 @@ export function validateScenes(scenes) {
   scenes.forEach((s) => s.end <= s.start && errors.push(`scene ${s.id} has no length`));
   return errors;
 }
+
+/**
+ * Which photo ("shot") of the current scene is showing.
+ * Returns { index (scene), shot (index within scene), count, u (0..1 within shot), t (0..1 within scene) }.
+ */
+export function shotAt(p, scenes) {
+  const index = sceneIndexAt(p, scenes);
+  const scene = scenes[index];
+  const t = localProgress(p, scene);
+  const count = Math.max(1, scene.shots?.length || 1);
+  const f = Math.min(t * count, count - 1e-9);
+  const shot = Math.floor(f);
+  return { index, shot, count, u: f - shot, t };
+}

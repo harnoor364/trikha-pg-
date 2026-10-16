@@ -15,7 +15,7 @@ export const CONFIG = {
   demo: {
     // Preview mode: banner on, placeholder notes visible, noindex (see README → Going live).
     enabled: true,
-    bannerText: "Preview · photos, rooms, rent and contact details are placeholders",
+    bannerText: "Preview · room types, rent and facilities are still being confirmed",
   },
 
   business: {
@@ -28,8 +28,10 @@ export const CONFIG = {
 
   contact: {
     // Leave "" until the owner confirms. Format: digits only with country code, e.g. "919876543210".
-    phone: { e164: "", display: "", verified: false },
-    whatsapp: { number: "", verified: false },
+    // 98557 57737 is printed on all of the property's own photos. Re-confirm with the owner.
+    phone: { e164: "919855757737", display: "+91 98557 57737", verified: true },
+    // Likely the same number — set verified: true once the owner confirms it takes WhatsApp.
+    whatsapp: { number: "919855757737", verified: false },
     email: { value: "", verified: false },
     visitingHours: { value: "", verified: false },
   },
@@ -74,14 +76,14 @@ export const CONFIG = {
   },
 
   walkthrough: {
-    // "auto" picks the best available: video → frames → placeholder3d → stills
+    // "auto" picks the best available: video → frames → photos (real property photos)
     mode: "auto",
     // Set true once real footage is in assets/video (see ASSETS.md).
     video: {
       available: false,
       desktop: "assets/video/walkthrough-1080p.mp4",
       mobile: "assets/video/walkthrough-720p.mp4",
-      poster: "assets/images/scenes/01-exterior.svg",
+      poster: "assets/images/property/01-exterior-gate.jpg",
     },
     frames: {
       available: false,
@@ -90,7 +92,5 @@ export const CONFIG = {
       count: 0,
       pad: 4,
     },
-    // Procedural architectural block-out. NOT the real layout — always badged as such.
-    placeholder3d: true,
   },
 };

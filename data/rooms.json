@@ -1,52 +1,190 @@
 {
-  "_readme": "Room cards. Nothing here is confirmed yet: every field with verified:false renders as a 'To be confirmed' placeholder. Replace with real room types from the owner. Add or remove objects freely. Images: put real photos in assets/images/rooms/ and update `images`.",
+  "_readme": "Room cards. Room types, occupancy, rent and availability are NOT confirmed yet (verified:false renders 'To be confirmed'). Photos are real property photos but which room type each shows is unknown, so they are labelled 'Representative photo' (photoLabel). Replace names/details with the owner's real room types.",
   "rooms": [
     {
       "id": "room-type-a",
-      "name": { "value": "Room type A", "verified": false },
-      "occupancy": { "value": "", "verified": false },
-      "facilities": { "value": [], "verified": false },
-      "rent": { "value": "", "period": "per month", "verified": false },
-      "availability": { "value": "", "verified": false },
-      "images": ["assets/images/rooms/room-a-1.svg"],
-      "placeholder": true
+      "name": {
+        "value": "Room type A",
+        "verified": false
+      },
+      "occupancy": {
+        "value": "",
+        "verified": false
+      },
+      "facilities": {
+        "value": [],
+        "verified": false
+      },
+      "rent": {
+        "value": "",
+        "period": "per month",
+        "verified": false
+      },
+      "availability": {
+        "value": "",
+        "verified": false
+      },
+      "images": [
+        "assets/images/property/04-room-bed-wardrobe-tv.jpg"
+      ],
+      "placeholder": false,
+      "photoLabel": "Representative photo"
     },
     {
       "id": "room-type-b",
-      "name": { "value": "Room type B", "verified": false },
-      "occupancy": { "value": "", "verified": false },
-      "facilities": { "value": [], "verified": false },
-      "rent": { "value": "", "period": "per month", "verified": false },
-      "availability": { "value": "", "verified": false },
-      "images": ["assets/images/rooms/room-b-1.svg"],
-      "placeholder": true
+      "name": {
+        "value": "Room type B",
+        "verified": false
+      },
+      "occupancy": {
+        "value": "",
+        "verified": false
+      },
+      "facilities": {
+        "value": [],
+        "verified": false
+      },
+      "rent": {
+        "value": "",
+        "period": "per month",
+        "verified": false
+      },
+      "availability": {
+        "value": "",
+        "verified": false
+      },
+      "images": [
+        "assets/images/property/06-room-bed-door.jpg"
+      ],
+      "placeholder": false,
+      "photoLabel": "Representative photo"
     },
     {
       "id": "room-type-c",
-      "name": { "value": "Room type C", "verified": false },
-      "occupancy": { "value": "", "verified": false },
-      "facilities": { "value": [], "verified": false },
-      "rent": { "value": "", "period": "per month", "verified": false },
-      "availability": { "value": "", "verified": false },
-      "images": ["assets/images/rooms/room-c-1.svg"],
-      "placeholder": true
+      "name": {
+        "value": "Room type C",
+        "verified": false
+      },
+      "occupancy": {
+        "value": "",
+        "verified": false
+      },
+      "facilities": {
+        "value": [],
+        "verified": false
+      },
+      "rent": {
+        "value": "",
+        "period": "per month",
+        "verified": false
+      },
+      "availability": {
+        "value": "",
+        "verified": false
+      },
+      "images": [
+        "assets/images/property/18-room-tv-desk-shelf.jpg"
+      ],
+      "placeholder": false,
+      "photoLabel": "Representative photo"
     }
   ],
   "facilities": {
-    "_readme": "Shared facilities. Only items with confirmed:true are shown publicly. The list below is a checklist of things to ASK the owner about — it is not a claim. In demo mode, unconfirmed items are shown with a 'To confirm' tag so the owner can review them.",
+    "_readme": "Shared facilities. confirmed:true = confirmed by the owner (shown as plain items). seen:true = visible in the property photos but not yet confirmed for every room (shown with a 'Seen in photos' tag). Everything else is only shown in demo mode as a checklist to ask the owner about.",
     "items": [
-      { "id": "wifi", "label": "Wi-Fi", "confirmed": false },
-      { "id": "meals", "label": "Meals / mess", "confirmed": false },
-      { "id": "kitchen", "label": "Shared kitchen", "confirmed": false },
-      { "id": "dining", "label": "Dining area", "confirmed": false },
-      { "id": "laundry", "label": "Laundry / washing machine", "confirmed": false },
-      { "id": "housekeeping", "label": "Room cleaning", "confirmed": false },
-      { "id": "water", "label": "RO drinking water", "confirmed": false },
-      { "id": "power", "label": "Power backup", "confirmed": false },
-      { "id": "cctv", "label": "CCTV / security", "confirmed": false },
-      { "id": "ac", "label": "Air conditioning", "confirmed": false },
-      { "id": "geyser", "label": "Hot water / geyser", "confirmed": false },
-      { "id": "parking", "label": "Two-wheeler parking", "confirmed": false }
+      {
+        "id": "kitchen",
+        "label": "Kitchen",
+        "confirmed": false,
+        "seen": true
+      },
+      {
+        "id": "ac",
+        "label": "Air conditioning (some rooms)",
+        "confirmed": false,
+        "seen": true
+      },
+      {
+        "id": "geyser",
+        "label": "Hot water taps in washroom",
+        "confirmed": false,
+        "seen": true
+      },
+      {
+        "id": "tv",
+        "label": "TV in room",
+        "confirmed": false,
+        "seen": true
+      },
+      {
+        "id": "fridge",
+        "label": "Refrigerator",
+        "confirmed": false,
+        "seen": true
+      },
+      {
+        "id": "study",
+        "label": "Study desk & chair",
+        "confirmed": false,
+        "seen": true
+      },
+      {
+        "id": "storage",
+        "label": "Wardrobe / steel almirah",
+        "confirmed": false,
+        "seen": true
+      },
+      {
+        "id": "western-toilet",
+        "label": "Western toilet",
+        "confirmed": false,
+        "seen": true
+      },
+      {
+        "id": "wifi",
+        "label": "Wi-Fi",
+        "confirmed": false
+      },
+      {
+        "id": "meals",
+        "label": "Meals / mess",
+        "confirmed": false
+      },
+      {
+        "id": "dining",
+        "label": "Dining area",
+        "confirmed": false
+      },
+      {
+        "id": "laundry",
+        "label": "Laundry / washing machine",
+        "confirmed": false
+      },
+      {
+        "id": "housekeeping",
+        "label": "Room cleaning",
+        "confirmed": false
+      },
+      {
+        "id": "water",
+        "label": "RO drinking water",
+        "confirmed": false
+      },
+      {
+        "id": "power",
+        "label": "Power backup",
+        "confirmed": false
+      },
+      {
+        "id": "cctv",
+        "label": "CCTV / security",
+        "confirmed": false
+      },
+      {
+        "id": "parking",
+        "label": "Two-wheeler parking",
+        "confirmed": false
+      }
     ]
   }
 }

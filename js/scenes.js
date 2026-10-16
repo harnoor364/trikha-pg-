@@ -1,72 +1,99 @@
-// Walkthrough chapters. `start`/`end` are fractions of the whole scroll journey
-// (and of the video duration in video mode). Keep them contiguous 0 → 1.
+// Walkthrough chapters, built from real photos of TRIKHA PG.
 //
-// `still` is the image shown before the 3D/video is ready, in the no-WebGL
-// fallback, and in the reduced-motion version. Replace the SVG placeholders with
-// real photos of the same shot (see ASSETS.md) — keep the same filenames or
-// update the paths here.
+// Each chapter has one or more `shots` (photos). Scroll moves forward through
+// them with a slow push-in and a forward "dolly" cross-fade into the next shot.
+// Chapter lengths are computed from the number of shots (plus `weight`), so you
+// can add/remove photos without re-timing anything by hand.
 //
-// `cutAfter: true` → a soft dip-to-black into the next chapter (a camera cut).
-// Leave it off where the camera moves continuously.
+// To swap in sharper originals: keep the filenames in assets/images/property/
+// (or change `src` here). Portrait photos are fine — set `portrait: true`.
 //
-// `confirmed: false` → the chapter shows a "to be confirmed" note because the
-// space it depicts has not been verified with the owner yet.
+// `confirmed: false` shows a small "To be confirmed" tag on the chapter, for
+// things the photos alone don't establish (e.g. whether washrooms are attached).
+//
+// With real walkthrough VIDEO later: set walkthrough.video.available in config.js
+// and give each chapter explicit `start`/`end` (fractions of the video) instead.
 
-export const SCENES = [
+const P = "assets/images/property/";
+
+const CHAPTERS = [
   {
-    id: "exterior", chapter: "01", label: "Arrival",
-    title: "The approach",
-    caption: "Arrive at TRIKHA PG in BRS Nagar, Ludhiana.",
-    start: 0, end: 0.14,
-    still: "assets/images/scenes/01-exterior.svg", confirmed: true,
+    id: "exterior", label: "Arrival", title: "The approach",
+    caption: "TRIKHA PG, BRS Nagar, Ludhiana.", weight: 1.6,
+    shots: [{ src: P + "01-exterior-gate.jpg", alt: "Front of the building with its gate and a car parked on the street", caption: "Arrive at the gate in BRS Nagar, Ludhiana." }],
   },
   {
-    id: "entry", chapter: "02", label: "Entry",
-    title: "Step inside",
-    caption: "The entrance and reception area.",
-    start: 0.14, end: 0.25,
-    still: "assets/images/scenes/02-entry.svg", confirmed: false,
+    id: "entry", label: "Entrance", title: "Step inside",
+    shots: [{ src: P + "02-entrance-passage.jpg", alt: "Clean tiled entrance passage lined with potted plants, leading to a red door", caption: "A clean, plant-lined entrance passage." }],
   },
   {
-    id: "corridor", chapter: "03", label: "Corridor",
-    title: "Down the corridor",
-    caption: "Corridors lead to the residents' rooms.",
-    start: 0.25, end: 0.37,
-    still: "assets/images/scenes/03-corridor.svg", confirmed: false,
+    id: "corridor", label: "Passage", title: "Through the passage",
+    shots: [{ src: P + "03-passage-to-gate.jpg", alt: "Bright tiled passage with potted plants looking toward the front gate", caption: "Bright, tidy common passage with plenty of greenery." }],
   },
   {
-    id: "room-1", chapter: "04", label: "Room one",
-    title: "Your room",
-    caption: "Room layout, furniture and occupancy to be confirmed.",
-    start: 0.37, end: 0.51, cutAfter: true,
-    still: "assets/images/scenes/04-room-1.svg", confirmed: false,
+    id: "room-1", label: "First room", title: "Your room",
+    shots: [
+      { src: P + "04-room-bed-wardrobe-tv.jpg", alt: "Room with a double bed, white wardrobe, wall-mounted TV on a desk, chair and refrigerator", caption: "Bed, wardrobe, TV on a study desk, and a fridge." },
+      { src: P + "05-room-steel-almirah.jpg", alt: "Grey steel almirah beside a door in a room", caption: "Steel almirah for secure storage." },
+      { src: P + "09-room-study-desk.jpg", alt: "Study desk with a chair beside a door", caption: "A study desk and chair." },
+    ],
   },
   {
-    id: "room-2", chapter: "05", label: "More rooms",
-    title: "More room options",
-    caption: "Additional room types, if available, will be shown here.",
-    start: 0.51, end: 0.63, cutAfter: true,
-    still: "assets/images/scenes/05-room-2.svg", confirmed: false,
+    id: "room-2", label: "More rooms", title: "More rooms",
+    caption: "Room types and occupancy to be confirmed.", confirmed: false,
+    shots: [
+      { src: P + "06-room-bed-door.jpg", alt: "Room with a bed and a door leading toward a washroom", caption: "Another furnished room." },
+      { src: P + "07-room-bed-mirror.jpg", alt: "Bed with a patterned bedsheet, wall mirror and curtains", portrait: true, caption: "Bed, mirror and curtains." },
+      { src: P + "08-room-bed-wall-panel.jpg", alt: "Bed against a patterned wall panel", portrait: true, caption: "Wall-panelled bedside." },
+      { src: P + "10-room-hooks-cabinet.jpg", alt: "Clothes hooks, a chair and a green storage cabinet", portrait: true, caption: "Hooks and a storage cabinet." },
+    ],
   },
   {
-    id: "shared", chapter: "06", label: "Shared spaces",
-    title: "Shared facilities",
-    caption: "Kitchen and dining spaces will be shown once confirmed by the owner.",
-    start: 0.63, end: 0.76,
-    still: "assets/images/scenes/06-shared.svg", confirmed: false,
+    id: "kitchen", label: "Kitchen", title: "The kitchen",
+    caption: "Kitchen access and meal arrangements to be confirmed.", confirmed: false,
+    shots: [
+      { src: P + "11-kitchen-counter.jpg", alt: "Tiled kitchen with a counter, shelves and a refrigerator", caption: "A tiled kitchen with counter and shelves." },
+      { src: P + "12-kitchen-fridge.jpg", alt: "Narrow kitchen with refrigerator, counter and window", portrait: true, caption: "Refrigerator and work counter." },
+      { src: P + "13-kitchen-sink.jpg", alt: "Granite counter with sink and a wall-mounted water heater", caption: "Sink and granite counter." },
+    ],
   },
   {
-    id: "final-room", chapter: "07", label: "Final room",
-    title: "A room with light",
-    caption: "Picture yourself settling in.",
-    start: 0.76, end: 0.9,
-    still: "assets/images/scenes/07-final-room.svg", confirmed: false,
+    id: "washrooms", label: "Washrooms", title: "Washrooms",
+    caption: "Attached or shared — to be confirmed.", confirmed: false,
+    shots: [
+      { src: P + "14-washroom-passage.jpg", alt: "Doorway from a room into a tiled washroom area", caption: "Tiled washroom area." },
+      { src: P + "15-washroom-toilet.jpg", alt: "Tiled washroom with a western toilet and washbasin", portrait: true, caption: "Western toilet and washbasin." },
+      { src: P + "16-washroom-shower.jpg", alt: "Tiled shower area with taps and a bucket", portrait: true, caption: "Shower area with hot and cold taps." },
+    ],
   },
   {
-    id: "enquire", chapter: "08", label: "Enquire",
-    title: "Make it yours",
+    id: "final-room", label: "Comforts", title: "Settle in",
+    shots: [
+      { src: P + "18-room-tv-desk-shelf.jpg", alt: "Room with a wall-mounted TV over a desk and a bookshelf", portrait: true, caption: "TV, desk and a bookshelf for your things." },
+      { src: P + "17-room-ac.jpg", alt: "Window air conditioner installed above a room door", portrait: true, caption: "Air conditioning (ask which rooms have AC)." },
+    ],
+  },
+  {
+    id: "enquire", label: "Enquire", title: "Make it yours", weight: 1.3,
     caption: "Ask about availability and visit in person.",
-    start: 0.9, end: 1,
-    still: "assets/images/scenes/08-enquire.svg", confirmed: true,
+    shots: [{ src: P + "04-room-bed-wardrobe-tv.jpg", alt: "", caption: "" }],
   },
 ];
+
+// ---- derive contiguous start/end ranges from shot counts ---------------------
+const weights = CHAPTERS.map((c) => c.weight ?? c.shots.length);
+const total = weights.reduce((a, b) => a + b, 0);
+let acc = 0;
+export const SCENES = CHAPTERS.map((c, i) => {
+  const start = acc;
+  acc = i === CHAPTERS.length - 1 ? 1 : Math.round(((acc * total + weights[i]) / total) * 1e6) / 1e6;
+  return {
+    confirmed: true,
+    caption: c.shots[0].caption,
+    ...c,
+    chapter: String(i + 1).padStart(2, "0"),
+    start,
+    end: acc,
+    still: c.shots[0].src,
+  };
+});

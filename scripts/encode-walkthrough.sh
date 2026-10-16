@@ -23,7 +23,8 @@ ffmpeg -y -i "$SRC" -an -vf "scale=-2:720:flags=lanczos,fps=30" \
   -movflags +faststart assets/video/walkthrough-720p.mp4
 
 # 3) Poster frame for the opening screen
-ffmpeg -y -i "$SRC" -frames:v 1 -vf "scale=1920:-2" -q:v 3 assets/images/scenes/01-exterior.jpg
+ffmpeg -y -i "$SRC" -frames:v 1 -vf "scale=1920:-2" -q:v 3 assets/images/property/00-video-poster.jpg
+#    (then point walkthrough.video.poster in js/config.js at it)
 
 # 4) OPTIONAL image sequence (smoothest on iPhone). ~12 fps keeps the count manageable.
 #    Then set walkthrough.frames.available = true and frames.count in js/config.js.

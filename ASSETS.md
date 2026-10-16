@@ -1,8 +1,36 @@
-# TRIKHA PG: media shot list & replacement guide
+# TRIKHA PG: photos, footage & replacement guide
 
-Everything visual on the site today is a **placeholder**. This document lists exactly what to capture at the property and how to drop it in.
+## 0. What's in use now
 
-> The Google Maps photo pages that were shared are saved *web pages*, not image files. They contain no picture data, so no real photo could be extracted from them. To use those photos, open each one on Google Maps, right-click the image → **Save image as…** (or download the originals from the Google Business Profile), and send the JPG/PNG files. Confirm you have the right to use each photo. Visitor-uploaded Google photos belong to the person who took them.
+The walkthrough uses **18 real property photos** in `assets/images/property/`:
+
+| File | Chapter | Shows |
+|---|---|---|
+| `01-exterior-gate.jpg` | 01 Arrival | Front gate from the street |
+| `02-entrance-passage.jpg` | 02 Entrance | Plant-lined passage toward the red door |
+| `03-passage-to-gate.jpg` | 03 Passage | Passage looking back toward the gate |
+| `04-room-bed-wardrobe-tv.jpg` | 04 First room (also room card A, final CTA) | Bed, wardrobe, TV on desk, fridge |
+| `05-room-steel-almirah.jpg` | 04 First room | Steel almirah and door |
+| `09-room-study-desk.jpg` | 04 First room | Study desk and chair |
+| `06-room-bed-door.jpg` | 05 More rooms (room card B) | Bed with door toward washroom |
+| `07-room-bed-mirror.jpg` | 05 More rooms | Bed, mirror, curtains |
+| `08-room-bed-wall-panel.jpg` | 05 More rooms | Bed against wall panel |
+| `10-room-hooks-cabinet.jpg` | 05 More rooms | Hooks, chair, green cabinet |
+| `11-kitchen-counter.jpg` | 06 Kitchen | Counter, shelves, fridge |
+| `12-kitchen-fridge.jpg` | 06 Kitchen | Fridge and counter (straightened; the original was sideways) |
+| `13-kitchen-sink.jpg` | 06 Kitchen | Sink, granite counter, water heater |
+| `14-washroom-passage.jpg` | 07 Washrooms | Doorway into tiled washroom area |
+| `15-washroom-toilet.jpg` | 07 Washrooms | Western toilet, washbasin |
+| `16-washroom-shower.jpg` | 07 Washrooms | Shower area, hot/cold taps |
+| `18-room-tv-desk-shelf.jpg` | 08 Comforts (room card C) | TV over desk, bookshelf |
+| `17-room-ac.jpg` | 08 Comforts | Window AC above a door |
+
+Two of the 20 uploads were duplicates. The originals were **167 px wide**, so they were upscaled 3× with Lanczos and light sharpening. That is as good as these files can get. **Replace them with full-size originals (same filenames) for a sharp site.** Ideally:
+- ≥ 1600 px on the long side, JPG quality ~80, ≤ 300 KB (compress with <https://squoosh.app>)
+- No phone-number watermark (the number is already on the site)
+- Landscape where possible. Portrait is fine; set `portrait: true` in `js/scenes.js`.
+
+**Nice-to-have extra shots:** a wide exterior of the whole building, reception/entry, staircase, a room shot from the doorway, the terrace or roof, the dining area if one exists, and the street or nearby landmarks.
 
 ---
 
@@ -44,33 +72,17 @@ Finally, **re-time `js/scenes.js`**: watch the encoded video and note when each 
 Size targets: desktop MP4 ≤ 12 MB, mobile ≤ 6 MB per minute. If larger, raise `-crf` by 2 in the script.
 
 ### Alternative: accurate 3D model
-If a measured model (e.g. Matterport export or an architect's model) becomes available, export **glTF/GLB, Draco-compressed, ≤ 8 MB**. Load it in `placeholder3d.js` in place of the procedural geometry (three.js `GLTFLoader` + `DRACOLoader`), and keep the camera-path structure (`SHOTS`). Only load it after first paint, as the current code already does.
+If a measured model (e.g. a Matterport export) becomes available, export **glTF/GLB, Draco-compressed, ≤ 8 MB** and add a renderer in `js/walkthrough/` with the same interface (`setProgress`, `destroy`). Load it only after first paint, as `controller.js` does for video.
 
 ---
 
-## 2. Chapter stills (fallback, loading state & reduced-motion view)
+## 2. Room photos
 
-One photo per chapter, **1600×900 (16:9), JPG/WebP, ≤ 250 KB**, framed like the matching moment in the video:
+For **each room type** the owner confirms: 3–5 photos (wide shot, bed, study/storage, window, bathroom if attached). Put them in `assets/images/property/` and list them in `data/rooms.json → rooms[].images`. Remove `photoLabel` once the photo really shows that room type.
 
-| File | Shot |
-|---|---|
-| `assets/images/scenes/01-exterior.jpg` | Building exterior from the street (also the opening-screen background) |
-| `assets/images/scenes/02-entry.jpg` | Entrance / reception |
-| `assets/images/scenes/03-corridor.jpg` | Corridor, one-point perspective |
-| `assets/images/scenes/04-room-1.jpg` | Typical room, wide |
-| `assets/images/scenes/05-room-2.jpg` | Second room type |
-| `assets/images/scenes/06-shared.jpg` | Kitchen / dining / common area (only if it exists) |
-| `assets/images/scenes/07-final-room.jpg` | Best room, window light |
-| `assets/images/scenes/08-enquire.jpg` | Calm detail or window, for the CTA background |
+## 3. Walkthrough chapters
 
-After adding them, change each `still:` path in `js/scenes.js` from `.svg` to `.jpg`, and update the `<link rel="preload">` and `<noscript>` image in `index.html`.
-
----
-
-## 3. Room photos
-
-For **each room type**: 3–5 photos, **1200×900 (4:3), ≤ 200 KB each**: wide shot, bed, study/storage, window/view, attached bathroom if any.
-Save as `assets/images/rooms/<room-id>-1.jpg`, `-2.jpg`, … and list them in `data/rooms.json` (`images`). Set `"placeholder": false`.
+Chapters and their photos live in `js/scenes.js`. Each shot needs `src`, a descriptive `alt` (for screen readers) and a short `caption`. Chapter lengths adjust automatically.
 
 ## 4. Other images
 
@@ -84,8 +96,4 @@ Save as `assets/images/rooms/<room-id>-1.jpg`, `-2.jpg`, … and list them in `d
 
 - Photos: <https://squoosh.app>, WebP or MozJPEG at quality ~75.
 - Video: use the provided script (H.264, keyframe every 4 frames, `+faststart`, no audio).
-- All images below the walkthrough are lazy-loaded. Chapter stills 1–2 load first and the rest load lazily.
-
-## 6. Regenerating placeholders
-
-`npm run placeholders` rewrites the SVG placeholders. Real JPGs with different extensions are never touched.
+- The first three walkthrough photos load immediately. The rest load just ahead of the visitor as they scroll.

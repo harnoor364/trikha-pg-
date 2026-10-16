@@ -17,8 +17,9 @@ test("verified numbers produce correct links", () => {
 });
 
 test("shipped config keeps unconfirmed details switched off", () => {
-  assert.equal(CONFIG.contact.phone.verified, false);
+  assert.equal(telHref(CONFIG.contact.phone), "tel:+919855757737");
   assert.equal(CONFIG.contact.whatsapp.verified, false);
+  assert.equal(whatsappHref(CONFIG.contact.whatsapp), null);
   assert.equal(CONFIG.rating.verified, false);
   assert.deepEqual(CONFIG.testimonials, []);
 });

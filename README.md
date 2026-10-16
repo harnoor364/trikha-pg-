@@ -2,9 +2,9 @@
 
 A premium, responsive website for **TRIKHA PG, BRS Nagar, Ludhiana, Punjab**. The main feature is a cinematic walkthrough that moves forward as the visitor scrolls: entrance, entry, corridor, rooms, shared spaces, final room, then the enquiry call to action.
 
-> ⚠️ **Preview / demo mode is ON.** No real footage, photos, room details, rent, phone or WhatsApp number have been supplied yet. The walkthrough currently uses a **procedural 3D block-out**, badged on screen as *"Illustrative 3D block-out · not the actual TRIKHA PG layout"*. **It is not a real property walkthrough.** It becomes one only once genuine footage (or an accurate 3D model) is added. See [ASSETS.md](ASSETS.md).
+> ⚠️ **Preview / demo mode is ON.** The walkthrough uses **18 real photos of the property** (exterior, entrance passage, rooms, kitchen, washrooms). It is a *photo* walkthrough, badged on screen as such. It is not yet a video walkthrough. The supplied photos are small thumbnails (167 px wide, gently upscaled), so **full-resolution originals will make it much sharper**. Room types, rent, availability and most facilities are still unconfirmed. See [ASSETS.md](ASSETS.md).
 
-Plain HTML, CSS and JavaScript (ES modules). **No build step, no framework, no backend required.** Libraries are self-hosted in `js/vendor/` (GSAP 3.12.5 + ScrollTrigger, three.js r160), so the site doesn't depend on third-party CDNs.
+Plain HTML, CSS and JavaScript (ES modules). **No build step, no framework, no backend required.** GSAP 3.12.5 + ScrollTrigger are self-hosted in `js/vendor/`, so the site doesn't depend on third-party CDNs.
 
 ---
 
@@ -15,12 +15,14 @@ Plain HTML, CSS and JavaScript (ES modules). **No build step, no framework, no b
 | Name "TRIKHA PG", BRS Nagar, Ludhiana | ✅ From the Google Maps listing *"TRIKHA PG in Ludhiana (BRS Nagar)"* | `js/config.js` |
 | Map pin 30.8855232, 75.8156191 and listing link | ✅ From the listing | `js/config.js → geo` |
 | Street address, PIN code, landmark | ❌ To confirm | `js/config.js → address` |
-| Phone, WhatsApp, email, visiting hours | ❌ To confirm. Buttons stay disabled until `verified: true` | `js/config.js → contact` |
+| Phone 98557 57737 | ✅ Printed on all the property's photos, so the Call buttons are live. Re-confirm with the owner | `js/config.js → contact.phone` |
+| WhatsApp, email, visiting hours | ❌ To confirm. WhatsApp is pre-filled with the same number but stays off until `verified: true` | `js/config.js → contact` |
 | Google rating (reported 4.8★ / 94 reviews) | ❌ **Hidden** until re-checked on the live listing and `rating.verified: true` | `js/config.js → rating` |
 | Testimonials | ❌ None shown. Add only real, attributed reviews with permission | `js/config.js → testimonials` |
-| Room types, occupancy, facilities, rent, availability | ❌ Placeholders ("To be confirmed") | `data/rooms.json` |
-| Shared facilities | ❌ Checklist only; just `confirmed: true` items show on the live site | `data/rooms.json → facilities` |
-| Walkthrough footage / photos | ❌ Placeholders | see [ASSETS.md](ASSETS.md) |
+| Room types, occupancy, rent, availability | ❌ Placeholders ("To be confirmed"). Cards use real room photos labelled "Representative photo" | `data/rooms.json` |
+| Facilities | ⚠️ Items visible in the photos (AC, TV, fridge, kitchen, study desk, storage, western toilet, hot-water taps) are tagged **"Seen in photos"**. Everything else is an owner checklist shown only in demo mode | `data/rooms.json → facilities` |
+| Walkthrough photos | ✅ Real, but low-resolution thumbnails | `assets/images/property/`, `js/scenes.js` |
+| Walkthrough video | ❌ Not yet. Optional upgrade | see [ASSETS.md](ASSETS.md) |
 | Audience (boys / girls / co-living) | ❌ Not stated anywhere on the site until confirmed | `js/config.js → business.audience` |
 
 ---
@@ -34,27 +36,24 @@ thank-you.html              Netlify Forms success page (no-JavaScript submission
 css/styles.css              All styles. Colour/typography tokens at the top (:root)
 js/
   config.js                 ← ALL business details + feature switches (verified flags)
-  scenes.js                 ← Walkthrough chapters: titles, captions, timing, still images
+  scenes.js                 ← Walkthrough chapters → photos ("shots") with captions & alt text
   main.js                   Page wiring: nav, contact links, rooms, form, map, trust gating
   lib/progress.js           Pure scroll→scene maths (unit-tested)
   lib/contact.js            tel:/wa.me/maps link builders (unit-tested)
   lib/validate.js           Enquiry validation, shared with /api/enquiry (unit-tested)
   walkthrough/
     controller.js           Sticky stage, ScrollTrigger progress, smoothing, UI, renderer selection
-    stills.js               Still-image renderer (first paint, loading state, fallback)
-    video.js                Scroll-scrubbed <video> renderer (for real footage)
-    frames.js               Image-sequence canvas renderer (for real footage, best on iOS)
-    placeholder3d.js        Procedural three.js block-out (current placeholder)
-  vendor/                   gsap.min.js, ScrollTrigger.min.js, three.module.min.js
+    photos.js               Photo walkthrough renderer (default; also the fallback)
+    video.js                Scroll-scrubbed <video> renderer (for future footage)
+    frames.js               Image-sequence canvas renderer (for future footage, best on iOS)
+  vendor/                   gsap.min.js, ScrollTrigger.min.js
 data/rooms.json             ← Room cards + facility checklist
-assets/images/scenes/       ← One still per walkthrough chapter (SVG placeholders now)
-assets/images/rooms/        ← Room photos (SVG placeholders now)
+assets/images/property/     ← The 18 property photos used by the walkthrough & room cards
 assets/video/               ← Encoded walkthrough videos go here
 assets/frames/              ← Optional image sequence goes here
 api/enquiry.js              Vercel serverless function for the form (optional)
 scripts/
   encode-walkthrough.sh     ffmpeg commands to prepare footage for scrubbing
-  generate-placeholders.mjs Regenerates the SVG placeholders
 tests/                      node --test unit tests
 netlify.toml, vercel.json, robots.txt, sitemap.xml
 ```
@@ -80,23 +79,23 @@ The enquiry form **will not send on localhost**. It tells you so honestly instea
 * The `#explore` section is `--wt-screens` viewport-heights tall (9 on desktop, 7 on mobile, set in `css/styles.css`), and its stage is `position: sticky`. The browser does the pinning and scrolling stays native, with **no scroll hijacking**.
 * GSAP ScrollTrigger reports progress 0 → 1. If GSAP fails to load, the controller measures scroll itself.
 * Progress is smoothed, frame-rate independently, and passed to the active renderer. The loop only runs while the section is on screen and something is changing.
-* Chapters, captions, the dip-to-black on camera cuts, the chapter rail and the final CTA all come from `js/scenes.js`.
-* **Renderer selection** (`walkthrough.mode: "auto"` in `config.js`): video → frames → placeholder3d → stills. The stills renderer paints instantly, so there is **never a loading screen**. The richer renderer loads after the page is idle and cross-fades in.
-* **Fallbacks:** no WebGL, a lost WebGL context, or a failed video/frames load → still images. **`prefers-reduced-motion`** → no pinning or scrubbing, just a calm vertical list of chapters. No JavaScript → hero plus normal page.
+* **9 chapters** come from `js/scenes.js`: Arrival → Entrance → Passage → First room → More rooms → Kitchen → Washrooms → Comforts → Enquire. Each chapter holds one or more photos ("shots"). Chapter lengths are computed from the number of photos, so adding or removing a photo needs no re-timing.
+* **The photo walkthrough** (`js/walkthrough/photos.js`) shows each photo in a frame over a blurred, full-bleed copy of itself. While a photo is on screen it slowly pushes in. Near the end it rushes toward the camera and fades while the next photo rises into place, giving a forward "dolly" from one space to the next. Captions, the "2 / 3" counter and the "To be confirmed" notes follow each photo.
+* **Renderer selection** (`walkthrough.mode: "auto"` in `config.js`): video → frames → photos. Photos paint instantly, so there is **never a loading screen**. If real video is configured, it loads after the page is idle and cross-fades in.
+* **Fallbacks:** a failed video/frames load returns to the photos (pure CSS transforms, no WebGL needed). **`prefers-reduced-motion`** → no pinning or scrubbing, just the chapters as a calm photo grid. No JavaScript → hero plus normal page.
 * **Accessibility:** a skip link, a "Skip walkthrough" link, keyboard-focusable chapter buttons, an `aria-live` chapter announcement, semantic landmarks, labelled form fields with inline errors, and focus styles.
 
 ---
 
-## Replacing placeholders with real TRIKHA PG media
+## Updating the photos
 
-Full shot list and specs: **[ASSETS.md](ASSETS.md)**. In short:
+Full specs: **[ASSETS.md](ASSETS.md)**. In short:
 
-1. **Walkthrough video** (recommended): run `scripts/encode-walkthrough.sh source.mp4`, then set `walkthrough.video.available: true` in `js/config.js`. Re-time the chapters in `js/scenes.js` so each `start`/`end` matches where that space appears in the video (fraction of the duration, e.g. 0.37 = 37 %).
-2. **Image sequence** (optional, smoothest on iPhone): the same script writes `assets/frames/…`. Set `frames.available: true` and `frames.count`.
-3. **Chapter stills**: save a photo of each space as `assets/images/scenes/01-exterior.jpg` … `08-enquire.jpg` (1600×900, under 250 KB) and change the `.svg` paths in `js/scenes.js` to `.jpg`.
-4. **Room photos**: add them to `assets/images/rooms/` and list them in `data/rooms.json → rooms[].images`. Set `placeholder: false`.
-5. Once real footage is live, the placeholder 3D is no longer used. You can delete `js/walkthrough/placeholder3d.js` and `js/vendor/three.module.min.js` and set `placeholder3d: false`.
-6. Remove the scene's `confirmed: false` (or set `true`) for every space that is genuinely shown.
+1. **Sharper photos (most impact):** get the original full-size photos and overwrite the files in `assets/images/property/` **with the same filenames**. Nothing else needs to change. Ideally 1600 px+ on the long side, under 300 KB each, *without* the phone-number watermark (the number is already on the site).
+2. **Add or reorder photos:** edit the `shots` lists in `js/scenes.js` (`src`, `alt`, `caption`, and `portrait: true` for tall photos).
+3. **Room cards:** once the owner confirms room types, set names, occupancy, rent and availability in `data/rooms.json` (`verified: true`) and pick the matching photos.
+4. **Confirmations:** remove `confirmed: false` from a chapter once its note (e.g. "Attached or shared, to be confirmed") is answered.
+5. **Video walkthrough (optional upgrade):** run `scripts/encode-walkthrough.sh source.mp4` and set `walkthrough.video.available: true`. Then give each chapter explicit `start`/`end` values matching the video.
 
 ---
 
@@ -147,17 +146,18 @@ When the owner has approved the content:
 
 ## ✅ To confirm with the owner
 
-- [ ] Phone number and **WhatsApp number** (confirm which number takes WhatsApp)
+- [ ] Confirm **98557 57737** is the right enquiry number, and whether it takes **WhatsApp**
 - [ ] Full street address, PIN code, nearest landmark; visiting hours
 - [ ] Who the PG is for (students / working professionals; boys / girls / co-living)
 - [ ] Room types, occupancy (single/double/triple), rent per type, deposit, what rent includes
 - [ ] Current availability
 - [ ] Facilities actually provided (Wi-Fi, meals, kitchen, laundry, power backup, security, AC, etc.)
-- [ ] Whether kitchen/dining spaces exist (chapter 06) and how many room types to show (chapters 04/05)
+- [ ] Kitchen: can residents cook? Are meals provided? Are washrooms attached or shared? Which rooms have AC/TV/fridge?
+- [ ] Full-resolution originals of the 18 photos (and any more: exterior wide shot, reception, terrace)
 - [ ] Current Google rating & review count; permission to quote specific reviews
-- [ ] Permission to film/photograph the property (see ASSETS.md) and to use any Google-listing photos
+- [ ] Permission to film the property for an optional video walkthrough (see ASSETS.md)
 - [ ] Final domain name
 
 ## Credits
 
-Design & development: Harnoor Singh. GSAP © GreenSock (standard no-charge licence). three.js © mrdoob and contributors (MIT, `js/vendor/three.LICENSE`). Fonts: Cormorant Garamond & Manrope (Google Fonts, OFL).
+Design & development: Harnoor Singh. GSAP © GreenSock (standard no-charge licence). Fonts: Cormorant Garamond & Manrope (Google Fonts, OFL). Property photos: TRIKHA PG.
