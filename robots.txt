@@ -1,0 +1,7 @@
+# DEMO MODE: blocks all crawlers until the owner approves the site.
+# Going live: replace with
+#   User-agent: *
+#   Allow: /
+#   Sitemap: https://<domain>/sitemap.xml
+User-agent: *
+Disallow: /

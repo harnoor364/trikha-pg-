@@ -1,0 +1,7 @@
+node_modules/
+.DS_Store
+.vercel/
+.netlify/
+*.log
+# raw source footage stays out of git — commit only the encoded web versions
+assets/video/source/
